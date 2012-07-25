@@ -46,7 +46,8 @@ nFuse relies on other publically available tools as part of its pipeline. Some o
 
 === Build bowtie2 ===
 
-We are currently using a modified version of bowtie2.  Enter the external/bowtie2-2.0.0-beta5/ directory and type make.
+Download and install [http://bowtie-bio.sourceforge.net/bowtie2/index.shtml bowtie2] and edit the bowtie2-align and bowtie2-build config entries. Must be version 
+`2.0.0-beta7` or greater.
 
 === Download blat and faToTwoBit ===
 
