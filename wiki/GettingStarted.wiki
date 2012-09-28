@@ -71,7 +71,7 @@ Once the required files and tools have been downloaded, the `create_reference_da
 
 = How to run =
 
-Running the nFuse pipeline is simple as running a single script. To run the nFuse pipeline, run `analyze.pl` from the scripts directory with the appropriate command line parameters. The parameters are listed below:
+Running the nFuse pipeline is simple as running a single script. To run the nFuse pipeline, run `nfuse.pl` from the scripts directory with the appropriate command line parameters. The parameters are listed below:
 
 <pre>
   -h, --help      Displays this information
@@ -91,29 +91,29 @@ Running the nFuse pipeline is simple as running a single script. To run the nFus
 
 Given paired RNA-seq fastq files rna.1.fastq and rna.2.fastq, and paired genome sequence fastq files dna.1.fastq and dna.2.fastq, run nFuse using the following command:
 
- `analyze.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir`
+ `nfuse.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir`
 
 You can also import data from a directory containing multiple lanes of sequencing data as described [ImportSetup here].
 
 Given a machine with multiple processes, 8 for example, run nFuse as follows:
 
- `analyze.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -p 8`
+ `nfuse.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -p 8`
 
 If you have access to a cluster, you may be able to run nFuse as follows for a sun grid engine (SGE) cluster:
 
- `analyze.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -s sge`
+ `nfuse.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -s sge`
 
 or as follows for a portable batch system (PBS) cluster:
 
- `analyze.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -s pbs`
+ `nfuse.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -s pbs`
 
 or as follows for a LSF cluster:
 
- `analyze.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -s lsf`
+ `nfuse.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -s lsf`
 
 In many cases it is beneficial to store intermediate results on a local disk rather than a network share. This can be done using the `--local` command line parameters as follows:
 
- `analyze.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -s lsf -l /localdisk`
+ `nfuse.pl -c config.txt --dnafq1 dna.1.fastq --dnafq2 dna.2.fastq --rnafq1 rna.1.fastq --rnafq2 rna.2.fastq -o output_dir -s lsf -l /localdisk`
 
 to specify that intermediate files be stored on at /localdisk.
 
