@@ -20,7 +20,7 @@ In the tools subdirectory of the nFuse package, type `make`.
 
 == External Tools ==
 
-nFuse relies on other publically available tools as part of its pipeline. These tools are not included with the nFuse download. Obtain these tools as detailed below.
+nFuse relies on other publically available tools as part of its pipeline. These tools are not included with the nFuse download. Obtain these tools as detailed below.  Paths to the binaries should be added to  the `config.txt` file in the scripts directory of the nFuse package.
 
 === python2.7 ===
 
