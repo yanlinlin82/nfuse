@@ -4,19 +4,52 @@
 
 = Setup =
 
-A smal amount of initial setup is required to run the nFuse pipeline.  You will need to make changes to a configuration file to tell nFuse where to put genome indices and where executables reside on your system.  You will then need to run `create_reference_dataset.pl` to create the required indices.
+A smal amount of initial setup is required to run the nFuse pipeline.  First download the nFuse code and build the toolset.  You will need to make changes to a configuration file to tell nFuse where to put genome indices and where executables reside on your system.  You will then need to run `create_reference_dataset.pl` to create the required indices.
 
 == nFuse code ==
 
-Download and untar/gunzip the nFuse code package to a directory. 
+Download and untar/gunzip the nFuse code package to a directory.  
 
-In the tools subdirectory type `make`.
+=== Prerequisites ===
+
+To build the nFuse toolset you must have the <strong>boost c++ development libraries</strong> installed.  If they are not installed on your system you can download them from the [http://www.boost.org/ boost website].  A full install of boost is not required.  The easiest thing to do is to download the latest boost source tar.gz, extract it, then add the extracted path to the CPLUS_INCLUDE_PATH environment variable (on bash, `export CPLUS_INCLUDE_PATH=/boost/directory/:$CPLUS_INCLUDE_PATH`)
+
+=== Building the toolset ===
+
+In the tools subdirectory of the nFuse package, type `make`.
+
+== External Tools ==
+
+nFuse relies on other publically available tools as part of its pipeline. These tools are not included with the nFuse download. Obtain these tools as detailed below.
+
+=== python2.7 ===
+
+[http://www.python.org/download/releases/2.7/ Python version 2.7] is required, install and edit the python config entry.
+
+=== bowtie2 ===
+
+Download and install [http://bowtie-bio.sourceforge.net/bowtie2/index.shtml bowtie2] and edit the bowtie2-align and bowtie2-build config entries. Must be version 
+`2.0.0-beta7` or greater.
+
+=== blat and faToTwoBit ===
+
+The latest blat tool suite can be downloaded from the ucsc website: [http://hgdownload.cse.ucsc.edu/admin/exe/ http://hgdownload.cse.ucsc.edu/admin/exe/]. Download `blat` and `faToTwoBit` and set the `blat_bin` and `fatotwobit_bin` entries in `config.txt` to the fully qualified paths of the `blat` and `faToTwoBit` binaries.
+
+=== R ===
+
+The latest version of R can be downloaded from the R project website: [http://www.r-project.org/ http://www.r-project.org/].  Install R and then locate the R and Rscript executables, and set the `r_bin` and `rscript_bin` entries in `config.txt` to the path of those executables.  
+
+Install the kernlab and ada packages.  Run R, then at the prompt type `install.packages("kernlab")` and `install.packages("ada")`
+
+=== GMAP ===
+
+The latest version of gmap can be downloaded here [http://research-pub.gene.com/gmap/ http://research-pub.gene.com/gmap/].  Build with a default configuration.  Do not worry about the `--with-gmapdb` build flag, nFuse will request a specific directory for the database anyway.
+
+== Reference Dataset ==
 
 Create a directory for storing the reference genome and genome indices.
 
 In the `config.txt` file in the scripts directory, edit the `code_directory` entry to the location of the untarred nFuse code, and edit the `dataset_directory` to the directory you created for storing the reference genome and genome indices.
-
-== Reference Dataset ==
 
 nFuse requires a specific set of files including a genome fasta, gene models GTF and others. The source files are downloaded automatically.  If automatic downloading fails or you would like to use a different genome, refer to [ReferenceGenomeSetup detailed setup].
 
@@ -40,30 +73,7 @@ Set the following configuration variables:
  ucsc_genome_version                         = hg18
 </pre>
 
-== External Tools ==
-
-nFuse relies on other publically available tools as part of its pipeline. Some of these tools are not included with the nFuse download. Obtain these tools as detailed below.
-
-=== Build bowtie2 ===
-
-Download and install [http://bowtie-bio.sourceforge.net/bowtie2/index.shtml bowtie2] and edit the bowtie2-align and bowtie2-build config entries. Must be version 
-`2.0.0-beta7` or greater.
-
-=== Download blat and faToTwoBit ===
-
-The latest blat tool suite can be downloaded from the ucsc website: [http://hgdownload.cse.ucsc.edu/admin/exe/ http://hgdownload.cse.ucsc.edu/admin/exe/]. Download `blat` and `faToTwoBit` and set the `blat_bin` and `fatotwobit_bin` entries in `config.txt` to the fully qualified paths of the `blat` and `faToTwoBit` binaries.
-
-=== Download R ===
-
-The latest version of R can be downloaded from the R project website: [http://www.r-project.org/ http://www.r-project.org/].  Install R and then locate the R and Rscript executables, and set the `r_bin` and `rscript_bin` entries in `config.txt` to the path of those executables.  
-
-Install the kernlab package.  Run R, then at the prompt type `install.packages("kernlab")`
-
-=== Download GMAP ===
-
-The latest version of gmap can be downloaded here [http://research-pub.gene.com/gmap/ http://research-pub.gene.com/gmap/].  Build with a default configuration.  Do not worry about the `--with-gmapdb` build flag, nFuse will request a specific directory for the database anyway.
-
-=== Creating required derivative files ===
+=== Building the reference dataset ===
 
 Once the required files and tools have been downloaded, the `create_reference_dataset.pl` script will build all required genome indices. Run the following command. Expect this step to take at least 12 hours.
 
