@@ -2,7 +2,7 @@
 
 = Introduction =
 
-In the following tutorial you will use nFuse to analyze data from prostate tumour 313.  The data was produced as part of a study of [http://www.ncbi.nlm.nih.gov/pubmed/22927308 poly-gene fusions and chromothripsis in prostate tumours].  The tutorial will guide you through an improvement of the defuse classifier and an exploration of the results.  If you are only interested in deFuse, omit the steps regarding the WGS.
+In the following tutorial you will use nFuse to analyze data from prostate tumour 313.  The data was produced as part of a study of [http://www.ncbi.nlm.nih.gov/pubmed/22927308 poly-gene fusions and chromothripsis in prostate tumours].  The tutorial will guide you through an improvement of the defuse classifier and an exploration of the results.  If you are only interested in deFuse, omit the steps regarding the WGS.  If you would like to understand what nFuse/deFuse can offer, skip to Exploring the results.
 
 = Obtain Data From SRA =
 
@@ -69,7 +69,40 @@ It is recommended you either use a cluster or a multicore machine.  To use a gri
 
 = Exploring the results =
 
-The remaining sections of this tutorial rely on a set of scripts and files that can be downloaded here
+The remaining sections of this tutorial rely on a set of scripts and results files that can be downloaded as the tarball tutorial.tar.gz from [https://code.google.com/p/nfuse/downloads/list here].
+
+If you have run nFuse, open the rna.results.tsv file in excel.  The content should be similar to the file 313B.rna.results.tsv contained in tutorial.tar.gz.  313B is TMPRSS2-ERG positive, so filter or search for rows with gene_name1 and gene_name2 as TMPRSS2 and ERG.  There will be multiple isoforms, one of the major isoforms is cluster_id 19165 in the results provided.  The 19165 sequence columns provides the sequence of the fusion boundary, with the boundary denoted by '|'.  The 19165 fusion is supported by 142 spanning reads (`span_count` column), 172 split reads (`splitreads_count` column), has a probability of 0.95 (`defuse_probability` column), and is not predicted to preserve the reading frame of TMPRSS2 and ERG (`orf` column).
+
+To view the alignment in the ucsc genome browser, [http://genome.ucsc.edu/cgi-bin/hgBlat?hgsid=193950507 blat] the sequence:
+
+{{{
+>19165
+CCGGGACAGTCTGAATCATGTCCTTCAGTAAGCCAGCCCATCTACCAGCTGTTCAGAACCTGACGGCTTTAGTTGCCCTTGGTTCTGCCA
+TCTTTTTTCTCTGTGAGTCATTTGTCTTGCTTTTGGTCAACACGGCTTTCCTCGGGTCTCCAAAGATCCTGGAATAACCT|TCCTGGTGG
+AGTAGAAGTAGTCTATAGCTTCTCCTTGGTAGTCCAGATGGGTCTCCCCAGCCAATGCATAACTCTCTCTTTGCCTTTTGATTCAGAGGC
+ATGTGGAGCTCAGCGTGGCCAGGT
+}}}
+
+The first 2 alignments in the results will be the alignment of the first half of the prediction to ERG and the alignment of the second half to TMPRSS2 respectively. 
+
+The results for this dataset contain a significant number of false positives, for instance:
+
+{{{
+>8381
+GGCGGCTCCCAGATCAACTCCACGCGCTACAAGACCGAGCTGTGCCGGCCCTTCGAGGAGAGCGGCACGTGCAAGTACGGCGAAAAGTGC
+CAGTTCGCGCATGGCTTCCACGAGCTGCGCAGCCTGAC|CCGCCACCCCAAGTACAAGACGGAGCTGTGCCGCACCTTCCACACCATCGG
+CTTTTGCCCCTACGGGCCCCGCTGCCAC
+}}}
+
+In blat the first alignment is of the entire sequence to a single loci, yet the probability of the event is 0.698821223.  The classifier is underperforming, mainly due to the training set containing an unrepresentative set of negative controls.  In the next section we will improve the classifier.
+
+= Augmenting the training set =
+
+A classifier is only as good as its training set, and the default set of positive and negative controls underrepresents false positive fusions between highly expressed paralogs.  Any fusion predicted between two HLA genes for instance, is suspicious, as the HLA genes are highly polymorphic, and are also likely to be highly expressed in a tumour sample for which the patient's immune system is responding to the tumour.
+
+== Annotate ensembl paralogs ==
+
+
 
 = Details =
 
