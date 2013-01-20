@@ -100,6 +100,8 @@ In blat the first alignment is of the entire sequence to a single loci, yet the 
 
 A classifier is only as good as its training set, and the default set of positive and negative controls underrepresents false positive fusions between highly expressed paralogs.  Any fusion predicted between two HLA genes for instance, is suspicious, as the HLA genes are highly polymorphic, and are also likely to be highly expressed in a tumour sample for which the patient's immune system is responding to the tumour.
 
+To add to the default training set, all that is necessary is to take validated/invalidated results from a nFuse/deFuse run and add them to data/controls.txt, setting the column validated to 'Y' for a true fusion and 'N' for a false positive.
+
 == Annotate ensembl paralogs ==
 
 Go to the [http://uswest.ensembl.org/biomart/martview ensembl biomart] page, select ensembl genes 70 and Homo sapiens from the drop down boxes.  Click on Attributes on the left, under Features / GENE deselect Ensembl Transcript ID, under Features / PARALOGS select Human Paralog Ensembl Gene ID.  Click Results, and ask to be notified by email (the most reliable option).  Alternatively, use the ensembl_paralogs.txt file provided.
@@ -124,9 +126,29 @@ Annotate the 313 results with columns gene1_fam, gene2_fam, same_gene_fam.
 python annotate_genefam.py hgnc_genefam.txt < 313B.rna.withparalog.tsv > 313B.rna.withpara.withfam.tsv
 }}}
 
-== Randomly select 50 likely false predictions ==
+== Sample likely false predictions ==
 
+Use the `select_false.py` script provided to randomly select 50 predictions with either paralog as 'Y' or same_gene_fam as 'Y'.  The script will add the validated column and set it to 'N'.
 
+{{{
+python select_false.py 50 < 313B.rna.withpara.withfam.tsv > new_controls_false.tsv
+}}}
+
+== Adding validated fusions ==
+
+Provided is a fasta of validated fusion sequences for 313 as `313BValidated.fa`.  Use `identify_validated.py` script provided to create a list of true positive predictions from the 313B results.  You must have `blat` installed and pathed to run this step.
+
+{{{
+python2.7 identify_validated.py 313BValidated.fa 313B.rna.results.tsv > new_controls_true.tsv
+}}}
+
+== Reclassifying and filtering ==
+
+Use the `rbind.py` script to merge the new and old training sets:
+
+{{{
+python rbind.py new_controls_true.tsv new_controls_false.tsv controls.txt > new_controls.tsv
+}}}
 
 = Details =
 
