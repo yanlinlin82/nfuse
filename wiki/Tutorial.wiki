@@ -176,3 +176,5 @@ A circos plot is an excellent way of providing a global view of how fusion trans
 create_circos_data.pl -f 313B.rna.filtered.tsv -p 313B
 circos -conf 313B.circos.conf
 }}}
+
+http://nfuse.googlecode.com/files/313B_circos.png
