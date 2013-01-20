@@ -4,6 +4,8 @@
 
 In the following tutorial you will use nFuse to analyze data from prostate tumour 313.  The data was produced as part of a study of [http://www.ncbi.nlm.nih.gov/pubmed/22927308 poly-gene fusions and chromothripsis in prostate tumours].  The tutorial will guide you through an improvement of the defuse classifier and an exploration of the results.  If you are only interested in deFuse, omit the steps regarding the WGS.  If you would like to understand what nFuse/deFuse can offer, skip to Exploring the results.
 
+The set of scripts and results files referenced by this tutorial can be downloaded as the tarball tutorial.tar.gz from [https://code.google.com/p/nfuse/downloads/list here].
+
 = Obtain Data From SRA =
 
 The accession number for the 313 study is [http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP013021 SRP013021], and the WGS and RNASeq data for 313B have accession [http://www.ncbi.nlm.nih.gov/sra/SRX147666 SRX147666] and [http://www.ncbi.nlm.nih.gov/sra/SRX147676 SRX147676] respectively.  
@@ -69,9 +71,13 @@ It is recommended you either use a cluster or a multicore machine.  To use a gri
 
 = Exploring the results =
 
-The remaining sections of this tutorial rely on a set of scripts and results files that can be downloaded as the tarball tutorial.tar.gz from [https://code.google.com/p/nfuse/downloads/list here].
-
 If you have run nFuse, open the rna.results.tsv file in excel.  The content should be similar to the file 313B.rna.results.tsv contained in tutorial.tar.gz.  313B is TMPRSS2-ERG positive, so filter or search for rows with gene_name1 and gene_name2 as TMPRSS2 and ERG.  There will be multiple isoforms, one of the major isoforms is cluster_id 19165 in the results provided.  The 19165 sequence columns provides the sequence of the fusion boundary, with the boundary denoted by '|'.  The 19165 fusion is supported by 142 spanning reads (`span_count` column), 172 split reads (`splitreads_count` column), has a probability of 0.95 (`defuse_probability` column), and is not predicted to preserve the reading frame of TMPRSS2 and ERG (`orf` column).
+
+To view the split and spanning read alignments supporting 19165, use the following command (example results provided in 19165.reads.txt):
+
+{{{
+get_reads_rna.pl -c config.txt -i 19165 -o 313B
+}}}
 
 To view the alignment in the ucsc genome browser, [http://genome.ucsc.edu/cgi-bin/hgBlat?hgsid=193950507 blat] the sequence:
 
@@ -164,10 +170,9 @@ python filterprob.py new_probability 0.5 < 313B.rna.newresults.tsv > 313B.rna.fi
 
 = Create a circos plot =
 
-A circos plot is an excellent way of providing a global view of how fusion transcripts connect genomic regions.  Circos can be obtained [http://circos.ca/ here].  Create a circos plot of the filtered 313 results as follows:
+A circos plot is an excellent way of providing a global view of how fusion transcripts connect genomic regions.  Circos can be obtained [http://circos.ca/ here].  The script `create_circos_data.pl`, part of the nFuse package, can be used to create a circos plot of the filtered 313 results as follows:
 
 {{{
 create_circos_data.pl -f 313B.rna.filtered.tsv -p 313B
 circos -conf 313B.circos.conf
 }}}
-
