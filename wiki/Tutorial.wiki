@@ -2,7 +2,7 @@
 
 = Introduction =
 
-In the following tutorial you will use nFuse to analyze data from prostate tumour 313.  The data was produced as part of a study of [http://www.ncbi.nlm.nih.gov/pubmed/22927308 poly-gene fusions and chromothripsis in prostate tumours].  The tutorial will guide you through an improvement of the defuse classifier and an exploration of the results.
+In the following tutorial you will use nFuse to analyze data from prostate tumour 313.  The data was produced as part of a study of [http://www.ncbi.nlm.nih.gov/pubmed/22927308 poly-gene fusions and chromothripsis in prostate tumours].  The tutorial will guide you through an improvement of the defuse classifier and an exploration of the results.  If you are only interested in deFuse, omit the steps regarding the WGS.
 
 = Obtain Data From SRA =
 
@@ -27,7 +27,14 @@ Obtain and install the [http://0-www.ncbi.nlm.nih.gov.elis.tmu.edu.tw/Traces/sra
 Use the fastq-dump command of the SRA Toolkit to obtain fastq files:
 
 {{{
-fastq-dump --split-files *.sra
+fastq-dump --split-files SRR496598.sra
+fastq-dump --split-files SRR496601.sra
+fastq-dump --split-files SRR496605.sra
+fastq-dump --split-files SRR496606.sra
+fastq-dump --split-files SRR496582.sra
+fastq-dump --split-files SRR496587.sra
+fastq-dump --split-files SRR496588.sra
+fastq-dump --split-files SRR496593.sra
 }}}
 
 Create paired fastq files for the WGS and RNASeq:
@@ -45,6 +52,24 @@ cat SRR496582_2.fastq SRR496587_2.fastq SRR496588_2.fastq SRR496593_2.fastq > rn
 = Install nFuse =
 
 Details on how to install nFuse can be found [GettingStarted here].
+
+= Run nFuse on the 313B data =
+
+{{{
+nfuse.pl -c config.txt --rnafq1 rna_1.fastq --rnafq2 rna_2.fastq --dnafq1 dna_1.fastq --dnafq2 dna_2.fastq -o 313B
+}}}
+
+Alternatively, you can run just deFuse on the RNASeq:
+
+{{{
+defuse.pl -c config.txt --rnafq1 rna_1.fastq --rnafq2 rna_2.fastq -o 313B
+}}}
+
+It is recommended you either use a cluster or a multicore machine.  To use a grid engine cluster add the option `-s sge`.  To use 16 cores, add the option `-p 16`.
+
+= Exploring the results =
+
+The remaining sections of this tutorial rely on a set of scripts and files that can be downloaded here
 
 = Details =
 
