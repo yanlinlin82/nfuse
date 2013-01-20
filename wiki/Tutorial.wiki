@@ -102,6 +102,30 @@ A classifier is only as good as its training set, and the default set of positiv
 
 == Annotate ensembl paralogs ==
 
+Go to the [http://uswest.ensembl.org/biomart/martview ensembl biomart] page, select ensembl genes 70 and Homo sapiens from the drop down boxes.  Click on Attributes on the left, under Features / GENE deselect Ensembl Transcript ID, under Features / PARALOGS select Human Paralog Ensembl Gene ID.  Click Results, and ask to be notified by email (the most reliable option).  Alternatively, use the ensembl_paralogs.txt file provided.
+
+Annotate the 313 results with a 'paralog' column using the `annotate_paralog.py` script provided:
+
+{{{
+python annotate_paralog.py ensembl_paralogs.txt < 313B.rna.results.tsv > 313B.rna.withparalog.tsv
+}}}
+
+== Annotate HGNC gene families ==
+
+Download the HGNC gene families list using wget:
+
+{{{
+wget http://www.genenames.org/cgi-bin/vdoc/genefam_list.pl -O hgnc_genefam.txt
+}}}
+
+Annotate the 313 results with columns gene1_fam, gene2_fam, same_gene_fam.
+
+{{{
+python annotate_genefam.py hgnc_genefam.txt < 313B.rna.withparalog.tsv > 313B.rna.withpara.withfam.tsv
+}}}
+
+== Randomly select 50 likely false predictions ==
+
 
 
 = Details =
