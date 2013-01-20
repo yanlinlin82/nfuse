@@ -1,0 +1,54 @@
+#summary Tutorial based on prostate tumour 313 data
+
+= Introduction =
+
+In the following tutorial you will use nFuse to analyze data from prostate tumour 313.  The data was produced as part of a study of [http://www.ncbi.nlm.nih.gov/pubmed/22927308 poly-gene fusions and chromothripsis in prostate tumours].  The tutorial will guide you through an improvement of the defuse classifier and an exploration of the results.
+
+= Obtain Data From SRA =
+
+The accession number for the 313 study is [http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP013021 SRP013021], and the WGS and RNASeq data for 313B have accession [http://www.ncbi.nlm.nih.gov/sra/SRX147666 SRX147666] and [http://www.ncbi.nlm.nih.gov/sra/SRX147676 SRX147676] respectively.  
+
+Obtain the WGS data using the following wget command:
+
+{{{
+wget -r -nH --cut-dirs=9 ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX/SRX147/SRX147666
+}}}
+
+Note the ftp URL can be obtained by navigating to the  [http://www.ncbi.nlm.nih.gov/sra/SRX147666 experiment page], clicking on one of the 'Runs' at the bottom left, clicking on the Download tab, then clicking FTP.  
+
+Obtain the RNASeq data using the following wget command:
+
+{{{
+wget -r -nH --cut-dirs=9 ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX/SRX147/SRX147676
+}}}
+
+Obtain and install the [http://0-www.ncbi.nlm.nih.gov.elis.tmu.edu.tw/Traces/sra/sra.cgi?view=software SRA Toolkit].
+
+Use the fastq-dump command of the SRA Toolkit to obtain fastq files:
+
+{{{
+fastq-dump --split-files *.sra
+}}}
+
+Create paired fastq files for the WGS and RNASeq:
+
+{{{
+cat SRR496598_1.fastq SRR496601_1.fastq SRR496605_1.fastq SRR496606_1.fastq > dna_1.fastq
+cat SRR496598_2.fastq SRR496601_2.fastq SRR496605_2.fastq SRR496606_2.fastq > dna_2.fastq
+}}}
+
+{{{
+cat SRR496582_1.fastq SRR496587_1.fastq SRR496588_1.fastq SRR496593_1.fastq > rna_1.fastq
+cat SRR496582_2.fastq SRR496587_2.fastq SRR496588_2.fastq SRR496593_2.fastq > rna_2.fastq
+}}}
+
+= Install nFuse =
+
+Details on how to install nFuse can be found [
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
