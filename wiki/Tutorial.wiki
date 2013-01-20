@@ -128,10 +128,10 @@ python annotate_genefam.py hgnc_genefam.txt < 313B.rna.withparalog.tsv > 313B.rn
 
 == Sample likely false predictions ==
 
-Use the `select_false.py` script provided to randomly select 50 predictions with either paralog as 'Y' or same_gene_fam as 'Y'.  The script will add the validated column and set it to 'N'.
+Use the `select_false.py` script provided to randomly select 100 predictions with either paralog as 'Y' or same_gene_fam as 'Y'.  The script will add the validated column and set it to 'N'.
 
 {{{
-python select_false.py 50 < 313B.rna.withpara.withfam.tsv > new_controls_false.tsv
+python select_false.py 100 < 313B.rna.withpara.withfam.tsv > new_controls_false.tsv
 }}}
 
 == Adding validated fusions ==
@@ -150,9 +150,24 @@ Use the `rbind.py` script to merge the new and old training sets:
 python rbind.py new_controls_true.tsv new_controls_false.tsv controls.txt > new_controls.tsv
 }}}
 
-= Details =
+Use the `defuse_classifier.R` script (identical to that provided in the nFuse package) to reclassify the 313 results.  The column 'new_probability' will be added.
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+{{{
+Rscript defuse_classifier.R new_controls.tsv 313B.rna.results.tsv 313B.rna.newresults.tsv 
+}}}
+
+Filter the results:
+
+{{{
+python filterprob.py new_probability 0.5 < 313B.rna.newresults.tsv > 313B.rna.filtered.tsv
+}}}
+
+= Create a circos plot =
+
+A circos plot is an excellent way of providing a global view of how fusion transcripts connect genomic regions.  Circos can be obtained [http://circos.ca/ here].  Create a circos plot of the filtered 313 results as follows:
+
+{{{
+create_circos_data.pl -f 313B.rna.filtered.tsv -p 313B
+circos -conf 313B.circos.conf
+}}}
+
