@@ -44,7 +44,7 @@ cat SRR496582_2.fastq SRR496587_2.fastq SRR496588_2.fastq SRR496593_2.fastq > rn
 
 = Install nFuse =
 
-Details on how to install nFuse can be found [
+Details on how to install nFuse can be found [GettingStarted here].
 
 = Details =
 
