@@ -133,12 +133,10 @@ AGCC
 Blat the above sequences and visit the following genomic locations to view the path:
 
 chr12:10,333,497-10,341,218
+
 chr20:30,520,386-30,535,106
+
 chr12:53,444,452-53,449,049
-
-== Exploring cycles with nFuse ==
-
-
 
 = Augmenting the training set =
 
