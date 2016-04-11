@@ -1,0 +1,214 @@
+# Introduction #
+
+In the following tutorial you will use nFuse to analyze data from prostate tumour 313.  The data was produced as part of a study of [poly-gene fusions and chromothripsis in prostate tumours](http://www.ncbi.nlm.nih.gov/pubmed/22927308).  The tutorial will guide you through an improvement of the defuse classifier and an exploration of the results.  If you are only interested in deFuse, omit the steps regarding the WGS.  If you would like to understand what nFuse/deFuse can offer, skip to Exploring the results.
+
+The set of scripts and results files referenced by this tutorial can be downloaded as the tarball tutorial.tar.gz from [here](https://code.google.com/p/nfuse/downloads/list).
+
+# Obtain Data From SRA #
+
+The accession number for the 313 study is [SRP013021](http://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP013021), and the WGS and RNASeq data for 313B have accession [SRX147666](http://www.ncbi.nlm.nih.gov/sra/SRX147666) and [SRX147676](http://www.ncbi.nlm.nih.gov/sra/SRX147676) respectively.
+
+Obtain the WGS data using the following wget command:
+
+```
+wget -r -nH --cut-dirs=9 ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX/SRX147/SRX147666
+```
+
+Note the ftp URL can be obtained by navigating to the  [experiment page](http://www.ncbi.nlm.nih.gov/sra/SRX147666), clicking on one of the 'Runs' at the bottom left, clicking on the Download tab, then clicking FTP.
+
+Obtain the RNASeq data using the following wget command:
+
+```
+wget -r -nH --cut-dirs=9 ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX/SRX147/SRX147676
+```
+
+Obtain and install the [SRA Toolkit](http://0-www.ncbi.nlm.nih.gov.elis.tmu.edu.tw/Traces/sra/sra.cgi?view=software).
+
+Use the fastq-dump command of the SRA Toolkit to obtain fastq files:
+
+```
+fastq-dump --split-files SRR496598.sra
+fastq-dump --split-files SRR496601.sra
+fastq-dump --split-files SRR496605.sra
+fastq-dump --split-files SRR496606.sra
+fastq-dump --split-files SRR496582.sra
+fastq-dump --split-files SRR496587.sra
+fastq-dump --split-files SRR496588.sra
+fastq-dump --split-files SRR496593.sra
+```
+
+Create paired fastq files for the WGS and RNASeq:
+
+```
+cat SRR496598_1.fastq SRR496601_1.fastq SRR496605_1.fastq SRR496606_1.fastq > dna_1.fastq
+cat SRR496598_2.fastq SRR496601_2.fastq SRR496605_2.fastq SRR496606_2.fastq > dna_2.fastq
+```
+
+```
+cat SRR496582_1.fastq SRR496587_1.fastq SRR496588_1.fastq SRR496593_1.fastq > rna_1.fastq
+cat SRR496582_2.fastq SRR496587_2.fastq SRR496588_2.fastq SRR496593_2.fastq > rna_2.fastq
+```
+
+# Install nFuse #
+
+Details on how to install nFuse can be found [here](GettingStarted.md).
+
+# Run nFuse on the 313B data #
+
+```
+nfuse.pl -c config.txt --rnafq1 rna_1.fastq --rnafq2 rna_2.fastq --dnafq1 dna_1.fastq --dnafq2 dna_2.fastq -o 313B
+```
+
+Alternatively, you can run just deFuse on the RNASeq:
+
+```
+defuse.pl -c config.txt --rnafq1 rna_1.fastq --rnafq2 rna_2.fastq -o 313B
+```
+
+It is recommended you either use a cluster or a multicore machine.  To use a grid engine cluster add the option `-s sge`.  To use 16 cores, add the option `-p 16`.
+
+# Exploring the results #
+
+If you have run nFuse, open the rna.results.tsv file in excel.  The content should be similar to the file 313B.rna.results.tsv contained in tutorial.tar.gz.  313B is TMPRSS2-ERG positive, so filter or search for rows with gene\_name1 and gene\_name2 as TMPRSS2 and ERG.  There will be multiple isoforms, one of the major isoforms is cluster\_id 19165 in the results provided.  The 19165 sequence columns provides the sequence of the fusion boundary, with the boundary denoted by '|'.  The 19165 fusion is supported by 142 spanning reads (`span_count` column), 172 split reads (`splitreads_count` column), has a probability of 0.95 (`defuse_probability` column), and is not predicted to preserve the reading frame of TMPRSS2 and ERG (`orf` column).
+
+To view the split and spanning read alignments supporting 19165, use the following command (example results provided in 19165.reads.txt):
+
+```
+get_reads_rna.pl -c config.txt -i 19165 -o 313B
+```
+
+To view the alignment in the ucsc genome browser, [blat](http://genome.ucsc.edu/cgi-bin/hgBlat?hgsid=193950507) the sequence:
+
+```
+>19165
+CCGGGACAGTCTGAATCATGTCCTTCAGTAAGCCAGCCCATCTACCAGCTGTTCAGAACCTGACGGCTTTAGTTGCCCTTGGTTCTGCCA
+TCTTTTTTCTCTGTGAGTCATTTGTCTTGCTTTTGGTCAACACGGCTTTCCTCGGGTCTCCAAAGATCCTGGAATAACCT|TCCTGGTGG
+AGTAGAAGTAGTCTATAGCTTCTCCTTGGTAGTCCAGATGGGTCTCCCCAGCCAATGCATAACTCTCTCTTTGCCTTTTGATTCAGAGGC
+ATGTGGAGCTCAGCGTGGCCAGGT
+```
+
+The first 2 alignments in the results will be the alignment of the first half of the prediction to ERG and the alignment of the second half to TMPRSS2 respectively.
+
+The results for this dataset contain a significant number of false positives, for instance:
+
+```
+>8381
+GGCGGCTCCCAGATCAACTCCACGCGCTACAAGACCGAGCTGTGCCGGCCCTTCGAGGAGAGCGGCACGTGCAAGTACGGCGAAAAGTGC
+CAGTTCGCGCATGGCTTCCACGAGCTGCGCAGCCTGAC|CCGCCACCCCAAGTACAAGACGGAGCTGTGCCGCACCTTCCACACCATCGG
+CTTTTGCCCCTACGGGCCCCGCTGCCAC
+```
+
+In blat the first alignment is of the entire sequence to a single loci, yet the probability of the event is 0.698821223.  The classifier is underperforming, mainly due to the training set containing an unrepresentative set of negative controls.  In the next section we will improve the classifier.
+
+# Augmenting the training set #
+
+A classifier is only as good as its training set, and the default set of positive and negative controls underrepresents false positive fusions between highly expressed paralogs.  Any fusion predicted between two HLA genes for instance, is suspicious, as the HLA genes are highly polymorphic, and are also likely to be highly expressed in a tumour sample for which the patient's immune system is responding to the tumour.
+
+To add to the default training set, all that is necessary is to take validated/invalidated results from a nFuse/deFuse run and add them to data/controls.txt, setting the column validated to 'Y' for a true fusion and 'N' for a false positive.
+
+## Annotate ensembl paralogs ##
+
+Go to the [ensembl biomart](http://uswest.ensembl.org/biomart/martview) page, select ensembl genes 70 and Homo sapiens from the drop down boxes.  Click on Attributes on the left, under Features / GENE deselect Ensembl Transcript ID, under Features / PARALOGS select Human Paralog Ensembl Gene ID.  Click Results, and ask to be notified by email (the most reliable option).  Alternatively, use the ensembl\_paralogs.txt file provided.
+
+Annotate the 313 results with a 'paralog' column using the `annotate_paralog.py` script provided:
+
+```
+python annotate_paralog.py ensembl_paralogs.txt < 313B.rna.results.tsv > 313B.rna.withparalog.tsv
+```
+
+## Annotate HGNC gene families ##
+
+Download the HGNC gene families list using wget:
+
+```
+wget http://www.genenames.org/cgi-bin/vdoc/genefam_list.pl -O hgnc_genefam.txt
+```
+
+Annotate the 313 results with columns gene1\_fam, gene2\_fam, same\_gene\_fam.
+
+```
+python annotate_genefam.py hgnc_genefam.txt < 313B.rna.withparalog.tsv > 313B.rna.withpara.withfam.tsv
+```
+
+## Sample likely false predictions ##
+
+Use the `select_false.py` script provided to randomly select 100 predictions with either paralog as 'Y' or same\_gene\_fam as 'Y'.  The script will add the validated column and set it to 'N'.
+
+```
+python select_false.py 100 < 313B.rna.withpara.withfam.tsv > new_controls_false.tsv
+```
+
+## Adding validated fusions ##
+
+Provided is a fasta of validated fusion sequences for 313 as `313BValidated.fa`.  Use `identify_validated.py` script provided to create a list of true positive predictions from the 313B results.  You must have `blat` installed and pathed to run this step.
+
+```
+python2.7 identify_validated.py 313BValidated.fa 313B.rna.results.tsv > new_controls_true.tsv
+```
+
+## Reclassifying and filtering ##
+
+Use the `rbind.py` script to merge the new and old training sets:
+
+```
+python rbind.py new_controls_true.tsv new_controls_false.tsv controls.txt > new_controls.tsv
+```
+
+Use the `defuse_classifier.R` script (identical to that provided in the nFuse package) to reclassify the 313 results.  The column 'new\_probability' will be added.
+
+```
+Rscript defuse_classifier.R new_controls.tsv 313B.rna.results.tsv 313B.rna.newresults.tsv 
+```
+
+Filter the results:
+
+```
+python filterprob.py new_probability 0.5 < 313B.rna.newresults.tsv > 313B.rna.filtered.tsv
+```
+
+# Create a circos plot #
+
+A circos plot is an excellent way of providing a global view of how fusion transcripts connect genomic regions.  Circos can be obtained [here](http://circos.ca/).  The script `create_circos_data.pl`, part of the nFuse package, can be used to create a circos plot of the filtered 313 results as follows:
+
+```
+create_circos_data.pl -f 313B.rna.filtered.tsv -p 313B
+circos -conf 313B.circos.conf
+```
+
+![http://nfuse.googlecode.com/files/313B_circos.png](http://nfuse.googlecode.com/files/313B_circos.png)
+
+## Exploring paths using nfuse ##
+
+The `path_id` column links the rna.results.tsv table to dna.paths.results.tsv.  The fusion, TMEM52B - TENC1, with `cluster_id` 27034 is a reasonably good example of a complex breakpoint.  To view in the ucsc genome browser, select the sequence for 27034 and the sequences of the 2 breakpoints for the corresponding path.  The sequences in fasta are:
+
+```
+>fusion_27034
+ACAGGGACGTCAGGCCACACAGGAGAAGCAGCGCGCCAATTACCACTAGCAACCATATATACCAGAGATGTACCCAGTCTGTGGTCAGGC
+AA|CAACTCCACGGGAGGCAAGGCCTGACAGGCTGAAGTCACCTTTGCTTCACATTTTCTGTGCGTCGCCACCTTGCAGACTCTGCACGA
+AACGCCTGTCCCATCGATGGTCACCTTA
+>breakpoint_86623
+TGGCTTTGGGTAAAAACATGCTGTCAGCAGTGTTATTTTGAGTGCTTAAGATGACAAAAACACGTCTTTATTTTGTGATAAGTCATCTAT
+GAGATCTATTACTTAAGTAAAAATAAATAAAAAGAAGTCATAGATGTCTAATGACATCTTGACTCTCTTTTGGGNGTTGGGTGCCACCTA
+CAGTGTGCAAATTTTCACTAAGAAAGGGAAGTTTTTCTTGCATTCACATCTCTATTGGAAGAAGGGAAAACAATAACACCACGAAAGCAC
+CATAATCATTCCTATGCCAGCTTTCTACATTTGAGTTACCTTTCTTCAAAGTGGAAAGGTGGCTCATGCCTGTAATCCCAGCACTTTGGG
+AGGCTGAGGCGGGTGGATCACCTGAGGTCAGGAGTTTGAGACCAGCTCGACCAACATGGTGAAACCCCATCTCTACTAAAAATACAAAG
+>breakpoint_70139
+TTGTGCCCTTGGGCCTGCTGGGGGTAGGACTCCTCTCCCCTTATCCAGTACAGCCTTCAAAAGGACACTGACATTCCCTTCCCCTGTCCC
+CAAGGCCCACATTGGTCCTTGCCCCTGCTGTAACTAACCACTCCCTTTTCCTCCCCCATCTCCCTCTAGCGGCGAAACACGGCCCCAGTC
+AGGCGCATAGAGCACCTGGTAAGGTGATGCTGGAGCAGGAGGGGGAAGCAGGTAGCTTTGGGAGTAAGGATCTAGATTTCCTGAAGACAA
+AAAGGGCATGGCTCTGGAGTGGGCAGTCTAGAGTAGGGGGTACCCAAAGAGATGTCTAGACACTGTCTGTTAACCACCAGGGATCCACCA
+AATCTCTGAACCACTCAAAGCAGCGCAGCACTCTNCATGAGCCCAGGGTTTTCCGGTTTCTGGCTCAGCTCCCAATCTCAAACACAAGGC
+CTAGAGAAGCACTTAAGTCACCCATCTGACTTAGATAAATGCACCTTTGCAGAGACCCTCACTAAGCTCTGCCTCCCTGGTCTGTCTTGT
+CCATCTGAGAAATGGGGATGCCCTGTCCCACTGGTTTTCAGATGATGGTCAGGGAGCCCCATGGGCTCCCCTGACATGCAAGGAGAAGAG
+GATGTGTTTAGGGCTCAGTACTTCCCCAGGCCCCCAATAAACACACAATCTAATAACTGCTTGCTGTGTAAGCACAGCTTAAAGACGAGT
+TCCTTAGCCTCCAAACTCTTGCTCCTGAAGGACCTTTTCAGCACTGACTTGGGAGGTATCCAAGTGTCAAAGCCAGGAGGACTTGGCTGC
+AGCC
+```
+
+Blat the above sequences and visit the following genomic locations to view the path:
+
+chr12:10,333,497-10,341,218
+
+chr20:30,520,386-30,535,106
+
+chr12:53,444,452-53,449,049
